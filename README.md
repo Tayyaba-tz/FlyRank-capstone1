@@ -16,21 +16,23 @@ A basic Node.js + Express web server, built as the starting point for my capston
 
 ### Installation
 
-1. Clone this repository: 
+1. Clone this repository:
   ```
   git clone https://github.com/yourusername/flyrank-capstone1.git
 
   ```
-2. Navigate into the project folder: 
+2. Navigate into the project folder:
   ```
   cd flyrank-capstone1
 
   ```
-3. Install dependencies: 
+3. Install dependencies:
   ```
   npm install
 
   ```
+
+
 
 ### Running the server
 
@@ -50,6 +52,8 @@ Then open your browser and go to `http://localhost:3000`.
 | `/about` | Returns a short description of the project |
 
 
+
+
 ## Project Structure
 
 ```
@@ -63,7 +67,8 @@ flyrank-capstone1/
 
 ```
 
+
+
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](https://claude.ai/chat/LICENSE) file for details.
-
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details..
