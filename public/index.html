@@ -16,6 +16,36 @@
       padding: 2px 6px;
       border-radius: 4px;
     }
+    #task-form {
+      margin-top: 2rem;
+    }
+    #task-form label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    #task-title {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .error-message {
+      color: #c00;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 0;
+    }
+    .success-message {
+      color: #067d06;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 0;
+    }
+    #task-form button {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -27,5 +57,18 @@
     <li><code>/health</code></li>
     <li><code>/api/tasks</code></li>
   </ul>
+
+  <section id="task-form-section">
+    <h2>Create a Task</h2>
+    <form id="task-form" novalidate>
+      <label for="task-title">Task title</label>
+      <input type="text" id="task-title" name="title" autocomplete="off" />
+      <p id="task-title-error" class="error-message" hidden></p>
+      <p id="task-success" class="success-message" hidden></p>
+      <button type="submit">Add Task</button>
+    </form>
+  </section>
+
+  <script src="index.js"></script>
 </body>
 </html>
