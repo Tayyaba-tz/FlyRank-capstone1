@@ -19,6 +19,7 @@ Use CommonJS (`require` / `module.exports`), not ES modules, unless the project 
 - Group related endpoints in one router file. One concern per file.
 - Use HTTP verbs that match the action (`GET` for reads, `POST` for creates). Keep path names lowercase and hyphenated (`/about`, `/health-check`).
 - Send clear responses. Prefer `res.status(...).json(...)` for APIs; `res.send(...)` is fine for simple text pages like the current homepage.
+- Never assume a POST route persisted data just because it returns a success response. Manually verify by calling the paired GET route afterward — an AI-generated POST handler can echo the input back without actually storing it.
 
 Example:
 
@@ -32,12 +33,14 @@ router.get("/", (req, res) => {
 });
 
 module.exports = router;
+
 ```
 
 ```js
 // index.js
 const homeRoutes = require("./routes/home-routes");
 app.use("/", homeRoutes);
+
 ```
 
 ## Code style
@@ -46,6 +49,18 @@ app.use("/", homeRoutes);
 - Prefer async/await over nested callbacks when adding I/O.
 - Do not commit `node_modules/` or `.env` files.
 - Read port from `process.env.PORT` with a fallback (`const PORT = process.env.PORT || 3000`).
+- Trim string inputs and validate a minimum meaningful length (e.g. at least 3 characters), not just non-emptiness. A truthy, non-empty string like `"a"` is not automatically a valid value.
+
+## Forms & accessibility
+
+- Every form input needs a properly associated `<label for="input-id">`. A `placeholder` is not a substitute for a label — it disappears once the user types and isn't reliably announced by all screen readers.
+- Dynamic status/error messages (shown or updated via JS) must live in an element with `aria-live="polite"` (or `role="alert"` for errors), not just plain text toggled with `hidden`. Otherwise screen reader users are never notified when validation fails or a submission succeeds.
+- Don't rely solely on browser-native validation (`required`, `maxlength`) for enforcement if the form also uses `novalidate` — pick one strategy and make sure it's actually active, or combine both deliberately rather than accidentally disabling native checks.
+
+## Testing
+
+- Any new route or form validation logic must ship with automated tests (`node:test`) covering at minimum: empty/whitespace-only input, a boundary case (e.g. minimum valid length), and a clearly valid case.
+- A prompt that doesn't explicitly ask for tests generally won't produce them — request test coverage and a verification step explicitly rather than assuming it's implied.
 
 ## Git commits (Conventional Commits)
 
@@ -71,3 +86,4 @@ Examples:
 - `fix(server): read port from environment`
 - `docs: describe npm start in readme`
 - `chore: add express dependency`
+
