@@ -6,6 +6,18 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// In-memory task store — shared across all requests
+const tasks = [
+  { id: 1, title: "Set up toolchain", done: true },
+  { id: 2, title: "Build starter server", done: true },
+  { id: 3, title: "Add first API route", done: false },
+];
+
+function getNextTaskId() {
+  const maxId = tasks.reduce((max, task) => Math.max(max, task.id), 0);
+  return maxId + 1;
+}
+
 // ---------- Middleware ----------
 
 // Parses incoming JSON request bodies (so we can read req.body on POST routes)
@@ -38,23 +50,26 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", uptime: process.uptime() });
 });
 
-// Example JSON API route — returns a small list of sample items
+// JSON API route — returns the current in-memory task list
 app.get("/api/tasks", (req, res) => {
-  const tasks = [
-    { id: 1, title: "Set up toolchain", done: true },
-    { id: 2, title: "Build starter server", done: true },
-    { id: 3, title: "Add first API route", done: false },
-  ];
   res.json(tasks);
 });
 
-// Example POST route — accepts JSON data and echoes it back
+// POST route — adds a new task to the in-memory store
 app.post("/api/tasks", (req, res) => {
-  const newTask = req.body;
-  if (!newTask || !newTask.title) {
+  const { title } = req.body || {};
+  if (!title || typeof title !== "string" || title.trim().length === 0) {
     return res.status(400).json({ error: "A 'title' field is required." });
   }
-  res.status(201).json({ message: "Task received", task: newTask });
+
+  const newTask = {
+    id: getNextTaskId(),
+    title: title.trim(),
+    done: false,
+  };
+  tasks.push(newTask);
+
+  res.status(201).json({ message: "Task created", task: newTask });
 });
 
 // ---------- 404 handler ----------
@@ -71,6 +86,10 @@ app.use((err, req, res, next) => {
 });
 
 // ---------- Start server ----------
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

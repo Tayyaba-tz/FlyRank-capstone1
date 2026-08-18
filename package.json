@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "test": "node --test test/task-form.test.js test/tasks-api.test.js"
   },
   "dependencies": {
     "express": "^4.19.2"
