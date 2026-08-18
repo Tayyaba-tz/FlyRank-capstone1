@@ -8,8 +8,9 @@ const PORT = process.env.PORT || 3000;
 
 // ---------- Middleware ----------
 
-// Parses incoming JSON request bodies (so we can read req.body on POST routes)
+// Parses incoming JSON and HTML form bodies (so we can read req.body on POST routes)
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serves static files (like our homepage.html) from the "public" folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -38,23 +39,29 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", uptime: process.uptime() });
 });
 
-// Example JSON API route — returns a small list of sample items
+const tasks = [
+  { id: 1, title: "Set up toolchain", done: true },
+  { id: 2, title: "Build starter server", done: true },
+  { id: 3, title: "Add first API route", done: false },
+];
+let nextTaskId = 4;
+
 app.get("/api/tasks", (req, res) => {
-  const tasks = [
-    { id: 1, title: "Set up toolchain", done: true },
-    { id: 2, title: "Build starter server", done: true },
-    { id: 3, title: "Add first API route", done: false },
-  ];
   res.json(tasks);
 });
 
-// Example POST route — accepts JSON data and echoes it back
 app.post("/api/tasks", (req, res) => {
-  const newTask = req.body;
-  if (!newTask || !newTask.title) {
+  const title = req.body && typeof req.body.title === "string"
+    ? req.body.title.trim()
+    : "";
+  if (!title) {
     return res.status(400).json({ error: "A 'title' field is required." });
   }
-  res.status(201).json({ message: "Task received", task: newTask });
+
+  const task = { id: nextTaskId, title, done: false };
+  nextTaskId += 1;
+  tasks.push(task);
+  res.status(201).json({ message: "Task received", task });
 });
 
 // ---------- 404 handler ----------

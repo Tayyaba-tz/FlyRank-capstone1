@@ -16,6 +16,29 @@
       padding: 2px 6px;
       border-radius: 4px;
     }
+    form {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 8px 10px;
+    }
+    button {
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    #status {
+      min-height: 1.4em;
+      color: #555;
+    }
+    #status.error {
+      color: #b00020;
+    }
+    ul#task-list {
+      padding-left: 20px;
+    }
   </style>
 </head>
 <body>
@@ -27,5 +50,80 @@
     <li><code>/health</code></li>
     <li><code>/api/tasks</code></li>
   </ul>
+
+  <h2>Tasks</h2>
+  <form id="task-form">
+    <input
+      type="text"
+      id="task-title"
+      name="title"
+      placeholder="What needs to be done?"
+      required
+      maxlength="200"
+    />
+    <button type="submit">Add task</button>
+  </form>
+  <p id="status"></p>
+  <ul id="task-list"></ul>
+
+  <script>
+    const form = document.getElementById("task-form");
+    const titleInput = document.getElementById("task-title");
+    const statusEl = document.getElementById("status");
+    const listEl = document.getElementById("task-list");
+
+    function setStatus(message, isError) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle("error", Boolean(isError));
+    }
+
+    function renderTasks(tasks) {
+      listEl.innerHTML = "";
+      tasks.forEach(function (task) {
+        const item = document.createElement("li");
+        item.textContent = task.done ? task.title + " (done)" : task.title;
+        listEl.appendChild(item);
+      });
+    }
+
+    async function loadTasks() {
+      const response = await fetch("/api/tasks");
+      if (!response.ok) {
+        throw new Error("Could not load tasks.");
+      }
+      const tasks = await response.json();
+      renderTasks(tasks);
+    }
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const title = titleInput.value.trim();
+      if (!title) {
+        setStatus("Please enter a task title.", true);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: title }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Could not add task.");
+        }
+        titleInput.value = "";
+        setStatus("Task added.");
+        await loadTasks();
+      } catch (err) {
+        setStatus(err.message, true);
+      }
+    });
+
+    loadTasks().catch(function (err) {
+      setStatus(err.message, true);
+    });
+  </script>
 </body>
 </html>
